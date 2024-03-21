@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Socket.IO Client</title>
+</head>
+<body>
+    <h1>Socket.IO Client</h1>
+    <div id="temperature"></div>
+    <div id="lights"></div>
+    <div id="windows"></div>
+
+    <script src="/socket.io/socket.io.js"></script> 
+    <script>
+        const socket = io();
+
+        socket.on('connected', (data) => {
+            
+            document.getElementById('temperature').textContent = `Temperature: ${data.temperature}`;
+            document.getElementById('lights').textContent = `Lights: ${data.lights}`;
+            document.getElementById('windows').textContent = `Windows: ${data.windows}`;
+            
+        });
+    </script>
+</body>
+</html>
