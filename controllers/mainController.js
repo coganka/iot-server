@@ -1,11 +1,13 @@
 const getMain = (req, res) => {
+    res.render('main')
+    /*
     if (global.io) {
         global.io.emit('connection', () => {
-            res.render('main')
+            console.log("connected")
         });
     } else {
         res.status(500).json({ error: 'Socket.IO is not available' });
-    }
+    }*/
 }
 
 module.exports = {

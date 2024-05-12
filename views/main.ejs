@@ -3,24 +3,271 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Socket.IO Client</title>
+    <title>🧠 Smart Home</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif; 
+            background-color: #f5f0ff;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+        }
+        .title-container {
+            margin-top: 20px; 
+            margin-left: 20px;
+            align-self: flex-start;
+        }
+
+        .data-container {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center; 
+        }
+
+        .data-item {
+            margin: 0 50px;
+            border: 1px solid #b590ff; 
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            display: flex; 
+            flex-direction: column; 
+            box-shadow: 0 10px 10px rgba(128, 0, 128, 0.3);
+        }
+
+        .data-item button {
+            margin-top: auto; 
+            padding: 12px 20px; 
+            border-radius: 8px; 
+            background-color: #8d4ab7; 
+            color: #fff; 
+            border: none; 
+            cursor: pointer; 
+        }
+
+        .data-item button:hover {
+            background-color: #7b1fa2; 
+        }
+
+        .fan-item {
+            margin: 0 50px;
+            border: 1px solid #b590ff; 
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            display: flex; 
+            flex-direction: column; 
+            box-shadow: 0 10px 10px rgba(128, 0, 128, 0.3);
+            align-items: center;
+        }
+        .degree-container {
+            display: flex;
+            align-items: center;
+            margin-top: 50px;
+        }
+        #degree-text {
+            margin: 0 10px; 
+        }
+
+        .fan-item button {
+            padding: 5px 10px; 
+            border-radius: 50%;
+            background-color: #8d4ab7; 
+            color: #fff;
+            border: none;
+            cursor: pointer;
+        }
+
+        #start-fan {
+            margin-top: auto; 
+            padding: 12px 20px; 
+            border-radius: 8px; 
+            background-color: #8d4ab7; 
+            color: #fff; 
+            border: none; 
+            cursor: pointer; 
+        }
+
+        #slider1::-moz-range-thumb {
+            background: #ff0000;
+        }
+        #slider1::-moz-range-track {
+            background: #faa1a1;
+            height: 8px;
+        }
+        #slider1::-webkit-slider-thumb {
+            background-color: #ff0000;
+        }
+        #slider1::-webkit-slider-runnable-track {
+            background-color: #faa1a1;
+            height: 8px;
+        }
+
+        #slider2::-moz-range-thumb {
+            background: #00ff26;
+        }
+        #slider2::-moz-range-track {
+            background: #a7f7bc;
+            height: 8px;
+        }
+        #slider2::-webkit-slider-thumb {
+            background-color: #00ff26;
+        }
+        #slider2::-webkit-slider-runnable-track {
+            background-color: #a7f7bc;
+            height: 8px;
+        }
+
+        #slider3::-moz-range-thumb {
+            background: #0077ff;
+        }
+        #slider3::-moz-range-track {
+            background: #a4e0fd;
+            height: 8px;
+        }
+        #slider3::-webkit-slider-thumb {
+            background-color: #0077ff;
+        }
+        #slider3::-webkit-slider-runnable-track {
+            background-color: #a4e0fd;
+            height: 8px;
+        }
+
+    </style>
 </head>
 <body>
-    <h1>Socket.IO Client</h1>
-    <div id="temperature"></div>
-    <div id="lights"></div>
-    <div id="windows"></div>
+    <div class="container">
+        <div class="title-container">
+            <h1>Welcome Back!</h1>
+            <h2 id="connection-info" style="color: red;">Device not connected</h2>
+        </div>
+        <div class="data-container">
+            <div class="data-item" id="heat-sensor">
+                <p>Temperature: <span id="temp-data" style="font-weight: bold;"></span></p>
+                <p>Humidity: <span id="humid-data" style="font-weight: bold;"></span></p>
+                <button id="get-temp">Get Temp</button>
+            </div>
+            <div class="fan-item" id="fan-container">
+                <p>Fan Status: <span id="fan-on-off" style="color: red;">Off</span></p>
+                <div class="degree-container">
+                    <button id="decrease-temp">  -  </button>
+                    <p id="degree-text">25</p>
+                    <button id="increase-temp">  +  </button>
+                </div>
+                <button id="start-fan">Start Fan</button>
+            </div>
+            
+            <div class="data-item" id="lights">
+                <label for="slider1">Red:</label>
+                <input type="range" id="slider1" name="slider1" min="0" max="100" value="50">
+                <p><span id="slider-value1">50</span></p>
+        
+                <label for="slider2">Green:</label>
+                <input type="range" id="slider2" name="slider2" min="0" max="100" value="50">
+                <p><span id="slider-value2">50</span></p>
+        
+                <label for="slider3">Blue:</label>
+                <input type="range" id="slider3" name="slider3" min="0" max="100" value="50">
+                <p><span id="slider-value3">50</span></p>
+        
+                <button id="set-lights">Set Lights</button>
+            </div>
+        </div>
+    </div>
+    
 
     <script src="/socket.io/socket.io.js"></script> 
     <script>
         const socket = io();
 
+        var degreeText = document.getElementById('degree-text');
+        var increaseButton = document.getElementById('increase-temp');
+        var decreaseButton = document.getElementById('decrease-temp');
+        var temperature = 25;
+
+        degreeText.textContent = temperature;
+
+        increaseButton.addEventListener('click', function() {
+            if (temperature < 30) { 
+                temperature++; 
+                degreeText.textContent = temperature; 
+            }
+        });
+
+        decreaseButton.addEventListener('click', function() {
+            if (temperature > 10) { 
+                temperature--; 
+                degreeText.textContent = temperature; 
+            }
+        });
+
+        var startFanButton = document.getElementById('start-fan');
+
+        startFanButton.addEventListener('click', function() {
+            var degreeValue = document.getElementById('degree-text').textContent.trim();
+
+            socket.emit('start-fan', degreeValue);
+        });
+
+
+        const sliders = document.querySelectorAll('input[type="range"]');
+        sliders.forEach(slider => {
+            const output = document.getElementById(`slider-value${slider.id.slice(-1)}`);
+
+            output.textContent = slider.value;
+
+            slider.addEventListener('input', function() {
+                output.textContent = this.value;
+            });
+        });
+
+        function emitEventPeriodically() {
+            const sliderValues = [];
+            sliders.forEach(slider => {
+                sliderValues.push(parseInt(slider.value));
+            });
+            socket.emit('are-you-alive', sliderValues);
+        }
+
+        let intervalId = setInterval(emitEventPeriodically, 10000);
+
+        document.getElementById('get-temp').addEventListener('click', () => {
+            socket.emit('button-clicked');
+        });
+
+        document.getElementById("set-lights").addEventListener('click', () => {
+            const sliderValues = [];
+            sliders.forEach(slider => {
+                sliderValues.push(parseInt(slider.value));
+            });
+            socket.emit('lights-set', sliderValues);
+        })
+
         socket.on('connected', (data) => {
-            
-            document.getElementById('temperature').textContent = `Temperature: ${data.temperature}`;
-            document.getElementById('lights').textContent = `Lights: ${data.lights}`;
-            document.getElementById('windows').textContent = `Windows: ${data.windows}`;
-            
+            document.getElementById('temp-data').textContent = `${data.temperature}`;
+            document.getElementById('humid-data').textContent = `${data.humidity}`;
+        });
+
+        socket.on('update-device-info', () => {
+            document.getElementById('connection-info').textContent = 'Device Connected';
+            document.getElementById('connection-info').style.color = 'green';
+        });
+
+        socket.on('pi-disconnect', () => {
+            document.getElementById('connection-info').textContent = 'Device not connected';
+            document.getElementById('connection-info').style.color = 'red';
+        });
+
+        socket.on('change-fan-info', () => {
+            document.getElementById('fan-on-off').textContent = 'On';
+            document.getElementById('fan-on-off').style.color = 'green';
+        })
+
+        socket.on('temp-res', (data) => {
+            document.getElementById('temp-data').textContent = `${data.temperature}°`;
+            document.getElementById('humid-data').textContent = `${data.humidity}%`;
         });
     </script>
 </body>
