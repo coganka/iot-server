@@ -12,7 +12,15 @@ app.set('views', __dirname + '/views');
 app.use(cors());
 
 const server = app.listen(PORT, () => console.log(`server listening on ${PORT}`));
-const io = socketIO(server);
+const io = socketIO(server, {
+    cors: {
+        origin: "*",
+        methods: ["GET", "POST"],
+        credentials: true,
+        transports: ['websocket', 'polling']
+    },
+    allowEIO3: true
+});
 
 
 const tempData = {
